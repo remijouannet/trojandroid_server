@@ -14,7 +14,6 @@ import logging
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
-
 ssl = SSL.Context(SSL.SSLv23_METHOD)
 ssl.use_privatekey_file('app.key')
 ssl.use_certificate_file('app.crt')
@@ -71,7 +70,6 @@ class trojan_server():
 			self.app.run(host=self.host, port=self.port, ssl_context=self.ssl, debug=self.args.verbose)
 
 
-
 	def default(self):
   		return 'hello'
 
@@ -107,5 +105,6 @@ class trojan_server():
 
 if __name__ == '__main__':
 	app = Flask(__name__)
-	server = trojan_server(app=app, host='192.168.1.59', port=8080, args=parse_args().getargs(), ssl=ssl)
+	server = trojan_server(app=app, host='192.168.2.5', port=8080, args=parse_args().getargs(), ssl=ssl)
+	#server = trojan_server(app=app, host='192.168.1.79', port=8080, args=parse_args().getargs())	
 	server.start()
