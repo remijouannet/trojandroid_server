@@ -14,9 +14,12 @@ import logging
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
-ssl = SSL.Context(SSL.SSLv23_METHOD)
-ssl.use_privatekey_file('app.key')
-ssl.use_certificate_file('app.crt')
+if os.path.isfile('app.crt') and os.path.isfile('app.key'):  
+	ssl = SSL.Context(SSL.SSLv23_METHOD)
+	ssl.use_privatekey_file('app.key')
+	ssl.use_certificate_file('app.crt')
+else:
+	ssl = False
 
 class parse_args:
 	def __init__(self):
@@ -105,6 +108,6 @@ class trojan_server():
 
 if __name__ == '__main__':
 	app = Flask(__name__)
-	server = trojan_server(app=app, host='192.168.2.5', port=8080, args=parse_args().getargs(), ssl=ssl)
+	server = trojan_server(app=app, host='192.168.2.3', port=8080, args=parse_args().getargs(), ssl=ssl)
 	#server = trojan_server(app=app, host='192.168.1.79', port=8080, args=parse_args().getargs())	
 	server.start()
