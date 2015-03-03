@@ -14,10 +14,11 @@ import logging
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
-if os.path.isfile('app.crt') and os.path.isfile('app.key'):  
-	ssl = SSL.Context(SSL.SSLv23_METHOD)
-	ssl.use_privatekey_file('app.key')
-	ssl.use_certificate_file('app.crt')
+if os.path.isfile('ssl/app.crt') and os.path.isfile('ssl/app.key'):  
+	#ssl = SSL.Context(SSL.SSLv23_METHOD)
+	#ssl.use_privatekey_file('ssl/app.key')
+	#ssl.use_certificate_file('ssl/app.crt')
+	ssl = ('ssl/app.crt', 'ssl/app.key')
 else:
 	ssl = False
 
@@ -67,11 +68,13 @@ class trojan_server():
 		if self.args.verbose == False:
 			logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
+		
 		if self.ssl == False:
 			self.app.run(host=self.host, port=self.port, debug=self.args.verbose)
 		else:
 			self.app.run(host=self.host, port=self.port, ssl_context=self.ssl, debug=self.args.verbose)
-
+			
+			
 
 	def default(self):
   		return 'hello'
@@ -88,15 +91,18 @@ class trojan_server():
 
 		if request.headers.get('Authorization') == sha1.hexdigest():
 			try:
-				print(json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8"))
+				resultjson = json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8")
+				print(request.remote_addr)
+				print(resultjson)
 			except:
+				print(request.remote_addr)
 				print(str(request.data))
 			
 			nullaction = True
 			self.stop()
 			return Response(self.null, status=200)
 		else:
-			print("Wrong KEY")
+			print(request.remote_addr + "Wrong KEY")
 			return Response(self.null, status=401)
 		
 

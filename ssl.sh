@@ -1,8 +1,14 @@
-if [[ -e "app.key" && -e "app.crt" ]]
+#iptables to redirect 443 to 8080
+#sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8080
+
+
+if [[ -e "ssl/app.key" && -e "ssl/app.crt" ]]
 then
 	echo 'app.key and app.crt already exists'
 	exit 1	
 else
+	mkdir ssl
+	cd ssl
 	#Generate a private key
 	echo 'Generate a private key'	
 	openssl genrsa -des3 -out app.key 1024
