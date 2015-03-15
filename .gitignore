@@ -1,2 +1,6 @@
 ssl/
+build/
+dist/
+android_trojan_server.egg-info/
+files.txt
 *.swp

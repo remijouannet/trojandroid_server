@@ -4,9 +4,11 @@ from setuptools import setup, find_packages
 
 
 setup(name='android_trojan_server',
-    author='Rémi Jouannet',
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': ['subliminal = subliminal.cli:subliminal']
-    },
-    install_requires=open('requirements.txt').readlines())
+	version='1.1',
+	author='Rémi Jouannet',
+	packages=find_packages(),
+	entry_points={
+		'console_scripts': ['androidtrojan = app.app:main']
+	},
+	install_requires=open('requirements.txt').readlines()
+)
