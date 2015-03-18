@@ -8,6 +8,7 @@ from os.path import expanduser
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
 
+
 class ParseArgs:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='ACTION')
@@ -67,11 +68,24 @@ class TrojanServer():
         else:
             self.app.run(host=self.host, port=self.port, ssl_context=self.ssl, debug=self.args.verbose)
 
-    @staticmethod
+
     def default(self):
         return 'hello'
 
     def action(self):
+        sha1 = hashlib.sha1()
+        sha1.update(KEY)
+
+        try:
+            SHA = request.headers.get('Authorization').split('::::')[1]
+            MAC = request.headers.get('Authorization').split('::::')[0]
+            IP = request.remote_addr
+            if SHA != sha1.hexdigest():
+                return Response(self.null, status=401)
+        except Exception:
+            return Response(self.null, status=401)
+
+
         for arg, value in sorted(vars(self.args).items()):
             if value and not self.nullAction and arg not in self.excludeArgs:
                 return Response(json.dumps({arg: value}), status=200, mimetype='application/json')
@@ -80,16 +94,18 @@ class TrojanServer():
     def result(self):
         sha1 = hashlib.sha1()
         sha1.update(KEY)
+        
         SHA = request.headers.get('Authorization').split('::::')[1]
         MAC = request.headers.get('Authorization').split('::::')[0]
+        IP = request.remote_addr
 
-        if request.headers.get('Authorization') == sha1.hexdigest() or True:
-            print(request.remote_addr + " " + MAC)
+        if SHA == sha1.hexdigest():
+            print(IP + " " + MAC)
             if request.mimetype == "application/json":
                 try:
                     resultjson = json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8")
                     print(resultjson)
-                except:
+                except Exception:
                     print(str(request.data))
             elif request.mimetype == "multipart/form-data":
                 fileresult = expanduser("~") + "/result"
@@ -99,18 +115,19 @@ class TrojanServer():
                 print(str(request.data))
 
             self.nullAction = True
-            self.stop(self)
+            self.stop()
             return Response(self.null, status=200)
         else:
             print(request.remote_addr + "Wrong KEY")
             return Response(self.null, status=401)
 
     @staticmethod
-    def stop(self):
+    def stop():
         func = request.environ.get('werkzeug.server.shutdown')
         if func is None:
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
+
 
 def main():
     args = ParseArgs().getargs()
@@ -120,7 +137,7 @@ def main():
         ssl = False
 
     app = Flask(__name__)
-    server = TrojanServer(app=app, host='192.168.1.36', port=8080, args=args, ssl=ssl)
+    server = TrojanServer(app=app, host='10.10.162.233', port=8080, args=args, ssl=ssl)
     server.start()
 
 if __name__ == '__main__':
