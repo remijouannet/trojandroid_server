@@ -112,7 +112,7 @@ class TrojanServer():
 
 def main():
     args = ParseArgs().getargs()
-    if args.ssl[0] and os.path.isfile(args.ssl[0] + '/app.crt') and os.path.isfile(args.ssl[0] + '/app.key'):
+    if args.ssl and os.path.isfile(args.ssl[0] + '/app.crt') and os.path.isfile(args.ssl[0] + '/app.key'):
         ssl = (args.ssl[0] + '/app.crt', args.ssl[0] + '/app.key')
     else:
         ssl = False
