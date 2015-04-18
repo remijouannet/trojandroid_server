@@ -137,7 +137,7 @@ def main():
         ssl = False
 
     app = Flask(__name__)
-    server = TrojanServer(app=app, host='10.10.162.233', port=8080, args=args, ssl=ssl)
+    server = TrojanServer(app=app, host='151.80.159.244', port=443, args=args, ssl=ssl)
     server.start()
 
 if __name__ == '__main__':
