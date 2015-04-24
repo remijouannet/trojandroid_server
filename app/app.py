@@ -13,29 +13,29 @@ class ParseArgs:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='ACTION')
         self.parser.add_argument('--location', dest='location', action='store_true', default=False,
-                                 help='get Location')
+                                 help='Get Location')
         self.parser.add_argument('--contacts', dest='contacts', action='store_true', default=False,
-                                 help='get Contacts')
+                                 help='Get Contacts')
         self.parser.add_argument('--calllogs', dest='calllogs', action='store_true', default=False,
                                  help='Get calllogs')
         self.parser.add_argument('--packages', dest='packages', action='store_true', default=False,
-                                 help='get installed packages')
+                                 help='Get installed packages')
         self.parser.add_argument('--mac', dest='mac', action='store_true', default=False,
-                                 help='get Mac address')
+                                 help='Get Mac address')
         self.parser.add_argument('--sendsms', dest='sendsms', action='store', metavar=('PhoneNumber', 'Message'),
                                  nargs=2, default=False,
                                  help='Send SMS')
         self.parser.add_argument('--call', dest='call', action='store', metavar=('PhoneNumber', 'calltime'), nargs=2,
                                  default=False,
-                                 help='call a number for X millisecondes')
+                                 help='Call a number for X millisecondes')
         self.parser.add_argument('--recordmic', dest='recordmic', action='store', metavar=('recordtime'), nargs=1,
                                  default=False,
-                                 help='record mic sound for X millisecondes and send receive the audio file')
+                                 help='Record mic sound for X millisecondes and receive the audio file')
         self.parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False,
                                  help='verbose')
         self.parser.add_argument('-s', '--ssl', dest='ssl', action='store', metavar=('folder'), nargs=1,
                                  default=False,
-                                 help='folder with app.crt and app.key for https')
+                                 help='Folder with app.crt and app.key for https')
         self.args = self.parser.parse_args()
 
     def getargs(self):

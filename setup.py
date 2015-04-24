@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='android_trojan_server',
-	version='1.1.1',
+	version='1.1.2',
 	author='Rémi Jouannet',
 	packages=find_packages(),
 	entry_points={
