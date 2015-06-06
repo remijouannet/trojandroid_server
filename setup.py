@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 
-setup(name='android_trojan_server',
+setup(name='trojandroid_server',
 	version='1.1.2',
 	author='Rémi Jouannet',
 	packages=find_packages(),
