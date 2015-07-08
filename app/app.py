@@ -1,5 +1,6 @@
 from flask import Flask, request, Response
 import argparse
+import socket
 import os
 import json
 import hashlib
@@ -7,6 +8,7 @@ import logging
 from os.path import expanduser
 
 KEY = 'LOL' + '8df639b301a1e10c36cc2f03bbdf8863'
+
 
 
 class ParseArgs:
@@ -129,6 +131,11 @@ class TrojanServer():
         func()
 
 
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
 def main():
     args = ParseArgs().getargs()
     if args.ssl and os.path.isfile(args.ssl[0] + '/app.crt') and os.path.isfile(args.ssl[0] + '/app.key'):
@@ -137,7 +144,7 @@ def main():
         ssl = False
 
     app = Flask(__name__)
-    server = TrojanServer(app=app, host='151.80.159.244', port=443, args=args, ssl=ssl)
+    server = TrojanServer(app=app, host=get_ip_address(), port=443, args=args, ssl=ssl)
     server.start()
 
 if __name__ == '__main__':

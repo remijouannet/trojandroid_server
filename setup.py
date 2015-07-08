@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='trojandroid_server',
-	version='1.1.2',
+	version='1.1.4',
 	author='Rémi Jouannet',
 	packages=find_packages(),
 	entry_points={
